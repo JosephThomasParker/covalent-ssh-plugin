@@ -89,6 +89,7 @@ class SSHExecutor(RemoteExecutor):
         retry_connect: bool = True,
         max_connection_attempts: int = 5,
         retry_wait_time: int = 5,
+        ssh_port: Optional[int] = 22,
     ) -> None:
 
         remote_cache = (
@@ -119,6 +120,7 @@ class SSHExecutor(RemoteExecutor):
         self.retry_connect = retry_connect
         self.max_connection_attempts = max_connection_attempts
         self.retry_wait_time = retry_wait_time
+        self.ssh_port = ssh_port or get_config("executors.slurm").get("ssh_port", 22)
 
         ssh_key_file = ssh_key_file or get_config("executors.ssh.ssh_key_file")
         self.ssh_key_file = str(Path(ssh_key_file).expanduser().resolve())
@@ -265,6 +267,7 @@ class SSHExecutor(RemoteExecutor):
                     username=self.username,
                     client_keys=[self.ssh_key_file],
                     known_hosts=None,
+                    port=self.ssh_port,
                 )
             except _retry_errs as err:
 
